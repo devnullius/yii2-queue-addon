@@ -7,6 +7,7 @@ use devnullius\queue\addon\dispatchers\EventDispatcher;
 use devnullius\queue\addon\wrappers\transaction\TransactionWrapper;
 use Yii;
 use yii\helpers\Json;
+use function random_int;
 
 final class TestEventService
 {
@@ -25,21 +26,33 @@ final class TestEventService
 
 
         $this->transactionWrapper->wrap(function () use ($message) {
-            Yii::debug(Json::encode(['message' => $message]), 'test_event_in_wrapper');
+            Yii::debug(Json::encode(['message' => $message]), 'test_events_in_wrapper');
+            $message .= $this->generateNextNumber() . ', done.';
             $testEntity = TestEntity::create($message);
             $this->dispatcher->dispatchAll($testEntity->releaseEvents());
+            $message .= $this->generateNextNumber() . ', done.';
             $testEntity = TestEntity::create($message);
             $this->dispatcher->dispatchAll($testEntity->releaseEvents());
+            $message .= $this->generateNextNumber() . ', done.';
             $testEntity = TestEntity::create($message);
             $this->dispatcher->dispatchAll($testEntity->releaseEvents());
+            $message .= $this->generateNextNumber() . ', done.';
             $testEntity = TestEntity::create($message);
             $this->dispatcher->dispatchAll($testEntity->releaseEvents());
+            $message .= $this->generateNextNumber() . ', done.';
             $testEntity = TestEntity::create($message);
             $this->dispatcher->dispatchAll($testEntity->releaseEvents());
+            $message .= $this->generateNextNumber() . ', done.';
             $testEntity = TestEntity::create($message);
             $this->dispatcher->dispatchAll($testEntity->releaseEvents());
+            $message .= $this->generateNextNumber() . ', done.';
             $testEntity = TestEntity::create($message);
             $this->dispatcher->dispatchAll($testEntity->releaseEvents());
         });
+    }
+
+    private function generateNextNumber(): int
+    {
+        return random_int(100000, 100000);
     }
 }
