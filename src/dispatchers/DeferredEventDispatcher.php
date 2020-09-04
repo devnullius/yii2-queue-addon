@@ -5,7 +5,7 @@ namespace devnullius\queue\addon\dispatchers;
 
 use devnullius\queue\addon\events\QueueEvent;
 
-final class DeferredEventDispatcher implements EventDispatcher
+final class DeferredEventDispatcher implements DeferredEventDispatcherInterface
 {
     private bool $defer = false;
     private array $queue = [];

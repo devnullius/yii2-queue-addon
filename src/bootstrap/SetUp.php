@@ -23,28 +23,22 @@ class SetUp implements BootstrapInterface
     final public function bootstrap($app): void
     {
         $container = Yii::$container;
-        
+
         $container->setSingleton(Queue::class, static function () use ($app) {
             return $app->get('queue');
         });
-        
+
         $container->setSingleton(EventDispatcher::class, DeferredEventDispatcher::class);
-        
+
         $container->setSingleton(DeferredEventDispatcher::class, static function (Container $container) {
             /**
              * @var $queue Queue
              */
             $queue = $container->get(Queue::class);
-            
+
             return new DeferredEventDispatcher(new AsyncEventDispatcher($queue));
         });
-        
-        //        $container->setSingleton(SimpleEventDispatcher::class, static function (Container $container) {
-        //            return new SimpleEventDispatcher($container, [
-        //                FileSignRequested::class => [FileSignRequestSimpleListener::class],
-        //            ]);
-        //        });
-        
+
         $container->setSingleton(AsyncEventJobHandler::class, [], [
             Instance::of(SimpleEventDispatcher::class),
         ]);
