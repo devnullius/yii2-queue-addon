@@ -53,6 +53,6 @@ final class TestEventService
 
     private function generateNextNumber(): int
     {
-        return random_int(100000, 100000);
+        return random_int(1000, 100000);
     }
 }
