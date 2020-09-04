@@ -5,9 +5,12 @@ namespace devnullius\queue\addon\bootstrap;
 
 use devnullius\queue\addon\dispatchers\AsyncEventDispatcher;
 use devnullius\queue\addon\dispatchers\DeferredEventDispatcher;
+use devnullius\queue\addon\dispatchers\DeferredEventDispatcherInterface;
 use devnullius\queue\addon\dispatchers\EventDispatcher;
 use devnullius\queue\addon\dispatchers\SimpleEventDispatcher;
 use devnullius\queue\addon\jobs\AsyncEventJobHandler;
+use devnullius\queue\addon\wrappers\transaction\Transaction;
+use devnullius\queue\addon\wrappers\transaction\YiiDbTransaction;
 use Yii;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
@@ -42,5 +45,14 @@ class SetUp implements BootstrapInterface
         $container->setSingleton(AsyncEventJobHandler::class, [], [
             Instance::of(SimpleEventDispatcher::class),
         ]);
+
+        $container->setSingleton(DeferredEventDispatcherInterface::class, DeferredEventDispatcher::class);
+        $container->setSingleton(YiiDbTransaction::class, static function () use ($app) {
+
+            $db = $app->db;
+
+            return new YiiDbTransaction($db);
+        });
+        $container->setSingleton(Transaction::class, YiiDbTransaction::class);
     }
 }

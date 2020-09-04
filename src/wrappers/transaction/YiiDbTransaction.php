@@ -51,6 +51,7 @@ final class YiiDbTransaction implements Transaction
     {
         if ($this->transaction !== null) {
             $this->transaction->commit();
+            return;
         }
         throw new InvalidConfigException('Empty transaction component.');
     }
@@ -62,6 +63,8 @@ final class YiiDbTransaction implements Transaction
     {
         if ($this->transaction !== null) {
             $this->transaction->rollBack();
+
+            return;
         }
         throw new InvalidConfigException('Empty transaction component.');
     }
