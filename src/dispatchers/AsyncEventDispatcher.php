@@ -39,8 +39,8 @@ final class AsyncEventDispatcher implements EventDispatcher
      */
     public function dispatch(QueueEvent $event): void
     {
-        if (array_key_exists($event->getChannel(), $this->channels)) {
-            $this->lastJobId = $this->channels[$event->getChannel()]->push(new AsyncEventJob($event));
+        if (array_key_exists($event->getQueueChannel(), $this->channels)) {
+            $this->lastJobId = $this->channels[$event->getQueueChannel()]->push(new AsyncEventJob($event));
         }
     }
 

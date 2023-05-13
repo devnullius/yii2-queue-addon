@@ -5,5 +5,5 @@ namespace devnullius\queue\addon\events;
 
 interface QueueEvent
 {
-    public function getChannel(): string;
+    public function getQueueChannel(): string;
 }
