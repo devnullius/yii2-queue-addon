@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace devnullius\queue\addon\bootstrap;
 
+use devnullius\queue\addon\channels\QueueChannelManager;
 use devnullius\queue\addon\dispatchers\AsyncEventDispatcher;
 use devnullius\queue\addon\dispatchers\DeferredEventDispatcher;
 use devnullius\queue\addon\dispatchers\DeferredEventDispatcherInterface;
@@ -16,7 +17,6 @@ use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\di\Container;
 use yii\di\Instance;
-use yii\queue\Queue;
 
 class SetUp implements BootstrapInterface
 {
@@ -27,19 +27,13 @@ class SetUp implements BootstrapInterface
     {
         $container = Yii::$container;
 
-        $container->setSingleton(Queue::class, static function () use ($app) {
-            return $app->get('queue');
-        });
-
         $container->setSingleton(EventDispatcher::class, DeferredEventDispatcher::class);
 
-        $container->setSingleton(DeferredEventDispatcher::class, static function (Container $container) {
-            /**
-             * @var $queue Queue
-             */
-            $queue = $container->get(Queue::class);
+        $container->setSingleton(DeferredEventDispatcher::class, static function (Container $container) use ($app) {
 
-            return new DeferredEventDispatcher(new AsyncEventDispatcher($queue));
+            $channels = ($container->get(QueueChannelManager::class))::getInstance($app, $container)->getActiveChannelList();
+
+            return new DeferredEventDispatcher(new AsyncEventDispatcher($channels));
         });
 
         $container->setSingleton(AsyncEventJobHandler::class, [], [
@@ -48,11 +42,21 @@ class SetUp implements BootstrapInterface
 
         $container->setSingleton(DeferredEventDispatcherInterface::class, DeferredEventDispatcher::class);
         $container->setSingleton(YiiDbTransaction::class, static function () use ($app) {
-
-            $db = $app->db;
-
-            return new YiiDbTransaction($db);
+            return new YiiDbTransaction($app->db);
         });
         $container->setSingleton(Transaction::class, YiiDbTransaction::class);
+
+        // need to have something like this in your app set-up also must have configuration file for multichannel queue-s
+        /**
+         * $container->setSingleton(SimpleEventDispatcher::class, static function (Container $container) {
+         * return new SimpleEventDispatcher($container, [
+         * TestExampleEvent::class => [TestExampleListener::class],
+         * ]);
+         * });
+         *
+         * $container->setSingleton(QueueChannelManager::class, static function (Container $container) use ($app) {
+         * return QueueChannelManager::getInstance($app, $container);
+         * });
+         */
     }
 }

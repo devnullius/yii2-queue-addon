@@ -1,6 +1,7 @@
 Queue Addon
 ===========
 Addon for yii2-queue original extension
+for multi channel version documentation not prepared yet! multichannel version is since v3xx
 
 Installation
 ------------

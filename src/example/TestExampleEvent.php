@@ -29,4 +29,9 @@ final class TestExampleEvent implements QueueEvent
     {
         return $this->message;
     }
+
+    public function getChannel(): string
+    {
+        return 'queue';
+    }
 }

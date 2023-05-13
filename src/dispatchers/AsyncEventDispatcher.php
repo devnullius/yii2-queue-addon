@@ -9,19 +9,21 @@ use yii\queue\Queue;
 
 final class AsyncEventDispatcher implements EventDispatcher
 {
-    private Queue $queue;
-    private ?string $lastJobId;
-    
     /**
-     * AsyncEventDispatcher constructor.
-     *
-     * @param Queue $queue
+     * @var Queue[]
      */
-    public function __construct(Queue $queue)
+    private array $channels;
+    private ?string $lastJobId;
+
+    public function __construct(array $channels)
     {
-        $this->queue = $queue;
+        // todo: find a way to throw errors if necessary only
+        foreach ($channels as $channel => $instance) {
+            assert($instance instanceof Queue);
+        }
+        $this->channels = $channels;
     }
-    
+
     /**
      * @param QueueEvent[] $events
      */
@@ -31,15 +33,17 @@ final class AsyncEventDispatcher implements EventDispatcher
             $this->dispatch($event);
         }
     }
-    
+
     /**
      * @param QueueEvent $event
      */
     public function dispatch(QueueEvent $event): void
     {
-        $this->lastJobId = $this->queue->push(new AsyncEventJob($event));
+        if (array_key_exists($event->getChannel(), $this->channels)) {
+            $this->lastJobId = $this->channels[$event->getChannel()]->push(new AsyncEventJob($event));
+        }
     }
-    
+
     /**
      * @return string|null
      */
