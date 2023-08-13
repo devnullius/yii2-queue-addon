@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace devnullius\queue\addon\channels;
 
+use devnullius\queue\addon\debug\panel\QueueDebugPanel;
 use Yii;
 use yii\base\Application;
 use yii\base\InvalidConfigException;
@@ -60,7 +61,7 @@ final class QueueChannelManager
     {
         if (empty(self::$configuration)) {
             $path = Yii::getAlias(self::$configurationFilePath);
-            if (file_exists($path)) {
+            if (is_file($path)) {
                 self::$configuration = require $path;
 
                 return self::$configuration;
@@ -101,6 +102,20 @@ final class QueueChannelManager
     {
 
         return array_keys(self::getConfigFile()[self::$configurationKey]);
+    }
+
+    public static function getChannelsFromConfigForDebugPanel(): array
+    {
+        $channels = self::getChannelsFromConfig();
+        $panels = [];
+        foreach ($channels as $channel) {
+            $panels[$channel] = [
+                'class' => QueueDebugPanel::class,
+                'queueName' => $channel,
+            ];
+        }
+
+        return $panels;
     }
 
     public static function getQueuesFromConfig(): array
